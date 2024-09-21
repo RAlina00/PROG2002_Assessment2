@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Fundraisers</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .navigation {
+            list-style: none;
+            display: flex;
+        }
+
+        .navigation li {
+            margin-left: 20px;
+        }
+
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .navigation a:hover {
+            text-decoration: underline;
+        }
+
+        .welcome-banner {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .welcome-banner h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .welcome-banner p {
+            font-size: 1.2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .highlighted-fundraisers {
+            margin: 40px auto;
+            padding: 20px;
+            max-width: 1200px;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        .highlighted-fundraisers h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .fundraisers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .fundraiser {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .fundraiser h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            color: #4CAF50;
+        }
+
+        .fundraiser p {
+            margin: 10px 0;
+        }
+
+        .status-active {
+            color: #58ab4c;
+            font-weight: bold;
+        }
+
+        .form-container {
+            max-width: 500px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body onload="load()">
+<header>
+    <nav>
+        <div class="logo">Community Fundraisers</div>
+        <ul class="navigation">
+            <li><a href="./home.html">Home</a></li>
+            <li><a href="./search.html">Search Fundraisers</a></li>
+            <li><a href="./fundraisers.html">Fundraisers</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <div class="form-container">
+        <h2>Search Fundraisers</h2>
+        <form id="form">
+            <label for="organizer">Organizer</label>
+            <input type="text" id="organizer" name="organizer" placeholder="Enter organizer name">
+            <label for="city">City</label>
+            <input type="text" id="city" name="city" placeholder="Enter city name">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+                <option value="">Select a category</option>
+            </select>
+            <button type="submit">Search</button>
+            <button type="reset">Clear</button>
+        </form>
+    </div>
+    <section class="highlighted-fundraisers">
+        <div id="fundraisers" class="fundraisers"></div>
+    </section>
+</main>
+<script>
+  function load() {
+    try {
+      fetch('http://localhost:3000/categories')
+        .then(res => res.json())
+        .then(res => {
+          const categories = res;
+          const category = document.getElementById('category');
+          categories.forEach(item => {
+            const categoryOption = document.createElement('option');
+            categoryOption.value = item.CATEGORY_ID;
+            categoryOption.innerText = item.NAME;
+
+            category.append(categoryOption)
+          });
+        })
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+
+    const form = document.getElementById("form");
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const organizer = document.getElementById("organizer").value;
+      const city = document.getElementById("city").value;
+      const category = document.getElementById("category").value;
+
+      if (!organizer && !city && !category) {
+        alert("You should enter at least one criteria")
+      } else {
+        fetch(`http://localhost:3000/fundraisers/search?city=${city}&category=${category}&organizer=${organizer}`)
+          .then(res => res.json())
+          .then(res => {
+            const fundraisers = res;
+            const fundraisersContainer = document.getElementById('fundraisers');
+            fundraisersContainer.innerHTML = '';
+            if (fundraisers.length > 0) {
+              fundraisers.forEach(fundraiser => {
+                const fundraiserCard = document.createElement('div');
+                fundraiserCard.classList.add('fundraiser');
+
+                fundraiserCard.innerHTML = `
+            <h3>${fundraiser.ORGANIZER} (ID: ${fundraiser.FUNDRAISER_ID})</h3>
+            <p>
+                <strong>Caption:</strong> ${fundraiser.CAPTION}
+            </p>
+            <p>
+                <strong>Target Funding:</strong> ${fundraiser.TARGET_FUNDING.toLocaleString()} AUD
+            </p>
+            <p>
+                <strong>Current Funding:</strong> ${fundraiser.CURRENT_FUNDING.toLocaleString()} AUD
+            </p>
+            <p>
+                <strong>Location:</strong> ${fundraiser.CITY}
+            </p>
+            <p>
+                <strong>Category Name:</strong> ${fundraiser.NAME}
+            </p>
+            <p class="status-active">
+              ${fundraiser.ACTIVE === 1 ? 'Active' : 'Suspended'}
+            </p>
+          `;
+
+                fundraiserCard.addEventListener("click", () => {
+                  location.href = "./fundraisers.html?fundraiser_id=" + fundraiser.FUNDRAISER_ID
+                });
+                fundraisersContainer.appendChild(fundraiserCard);
+              });
+            } else {
+              fundraisersContainer.innerHTML = '<div style="text-align: center;color: crimson;font-weight: bolder">no fundraisers are found</div>'
+            }
+          })
+            .catch(error => {
+              console.error('Error fetching fundraisers:', error);
+              const fundraisersContainer = document.getElementById('fundraisers');
+              fundraisersContainer.innerHTML = `<p>Error fetching fundraisers.</p>`;
+            })
+      }
+    })
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Fundraisers</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .navigation {
+            list-style: none;
+            display: flex;
+        }
+
+        .navigation li {
+            margin-left: 20px;
+        }
+
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .navigation a:hover {
+            text-decoration: underline;
+        }
+
+        .welcome-banner {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .welcome-banner h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .welcome-banner p {
+            font-size: 1.2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .highlighted-fundraisers {
+            margin: 40px auto;
+            padding: 20px;
+            max-width: 1200px;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        .highlighted-fundraisers h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .fundraisers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .fundraiser {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .fundraiser h3 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            color: #4CAF50;
+        }
+
+        .fundraiser p {
+            margin: 10px 0;
+        }
+
+        .status-active {
+            color: #58ab4c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body onload="load()">
+<header>
+    <nav>
+        <div class="logo">Community Fundraisers</div>
+        <ul class="navigation">
+            <li><a href="./home.html">Home</a></li>
+            <li><a href="./search.html">Search Fundraisers</a></li>
+            <li><a href="./fundraisers.html">Fundraisers</a></li>
+        </ul>
+    </nav>
+    <div class="welcome-banner">
+        <h1>Welcome to Community Fundraisers</h1>
+        <p>We welcome you to a place where hope thrives, and where every act of kindness, no matter how big or small, contributes to a brighter future.</p>
+        <p style="margin-top: 10px">Contact: 1060623263@qq.com</p>
+    </div>
+</header>
+<main>
+    <section class="highlighted-fundraisers">
+        <div id="fundraisers" class="fundraisers"></div>
+    </section>
+</main>
+<script>
+  function load() {
+    fetch('http://localhost:3000/fundraisers')
+      .then(res => res.json())
+      .then(res => {
+        const fundraisers = res;
+        const fundraisersContainer = document.getElementById('fundraisers');
+        fundraisers.forEach(fundraiser => {
+          const fundraiserCard = document.createElement('div');
+          fundraiserCard.classList.add('fundraiser');
+
+          fundraiserCard.innerHTML = `
+            <h3>${fundraiser.ORGANIZER} (ID: ${fundraiser.FUNDRAISER_ID})</h3>
+            <p>
+                <strong>Caption:</strong> ${fundraiser.CAPTION}
+            </p>
+            <p>
+                <strong>Target Funding:</strong> ${fundraiser.TARGET_FUNDING.toLocaleString()} AUD
+            </p>
+            <p>
+                <strong>Current Funding:</strong> ${fundraiser.CURRENT_FUNDING.toLocaleString()} AUD
+            </p>
+            <p>
+                <strong>Location:</strong> ${fundraiser.CITY}
+            </p>
+            <p>
+                <strong>Category Name:</strong> ${fundraiser.NAME}
+            </p>
+            <p class="status-active">
+              ${fundraiser.ACTIVE === 1 ? 'Active' : 'Suspended'}
+            </p>
+          `;
+          fundraisersContainer.appendChild(fundraiserCard);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching fundraisers:', error);
+        const fundraisersContainer = document.getElementById('fundraisers');
+        fundraisersContainer.innerHTML = `<p>Error fetching fundraisers.</p>`;
+      })
+  }
+</script>
+</body>
+</html>
