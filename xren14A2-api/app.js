@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dbcon = require('./crowdfunding_db');
+const path = require('path');
 
 // Initialize Express app
 const app = express();
@@ -10,6 +11,8 @@ const connection = dbcon.getConnection();
 
 // Enable CORS for handling cross-origin requests
 app.use(cors());
+
+app.use( express.static('../xren14A2-clientside'));
 
 // Helper function to handle database query errors
 function handleQueryError(err, res) {
@@ -86,6 +89,10 @@ app.get('/fundraisers/:id', (req, res) => {
     res.status(200).json(records[0]);
   });
 });
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../xren14A2-clientside", "home.html"));
+})
 
 // Start the server and listen on port 3000
 app.listen(3000, () => {
